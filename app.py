@@ -8,7 +8,8 @@ if __name__ == "__main__":
 
     stack = Stack(num_panels=6, 
                  panel_spacing=2,
-                 panel_width=1)
+                 panel_width=1,
+                 plot=True)
     
     cylinder = create_cylinder(stack.panel_width)
     panels = stack.create_panel_surfaces()

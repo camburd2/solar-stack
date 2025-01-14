@@ -1,4 +1,4 @@
-from config import Params, OptBounds
+from config import Params
 import plotly.graph_objs as go
 import numpy as np
 
@@ -13,7 +13,7 @@ class Panel:
         self.z = panel_dims[4]
 
 class Stack:
-    def __init__(self, num_panels, panel_spacing, panel_width):
+    def __init__(self, num_panels, panel_spacing, panel_width, plot=False):
         self.params = Params()
         self.num_panels = num_panels
         self.panel_spacing = panel_spacing
@@ -25,26 +25,27 @@ class Stack:
         self.sun_direction_vector = (0,0,0)
         self.azimuth = 0
         self.heading = 0
-
-        # Calculate values
-        self.front_offset, self.back_offset = self.calc_offsets()
-        self.base_x0 = self.params.MAST_OFFSET
-        self.base_x1 = self.params.X_MAX
         
         # Create elements
-        self.panel_dims = self.calc_all_panel_dims()
-        self.panel_midpoints = self.calc_panel_midpoints()
+        self.panel_dims = self._calc_all_panel_dims()
+        
+        if plot: 
+            self.panel_midpoints = self._calc_panel_midpoints()
 
-    def calc_offsets(self):
+    def _calc_offsets(self):
         front_offset = (self.panel_spacing * self.params.X_MAX) / self.params.MAST_HEIGHT
         back_offset = (self.panel_spacing * self.params.MAST_OFFSET) / self.params.MAST_HEIGHT
         return front_offset, back_offset
     
-    def calc_all_panel_dims(self):
+    def _calc_all_panel_dims(self):
+        front_offset, back_offset = self._calc_offsets()
+        base_x0 = self.params.MAST_OFFSET
+        base_x1 = self.params.X_MAX
+
         panel_dims = []
         for i in range(self.num_panels):
-            x0 = self.base_x0 - i * self.back_offset
-            x1 = self.base_x1 - i * self.front_offset
+            x0 = base_x0 - i * back_offset
+            x1 = base_x1 - i * front_offset
             y0, y1 = 0, self.panel_width
             z = i * self.panel_spacing
 
@@ -66,7 +67,9 @@ class Stack:
         self.azimuth = azimuth
         self.heading = heading
 
-    def calc_panel_midpoints(self):
+        self._update_shadow_dims()
+
+    def _calc_panel_midpoints(self):
         mids = []
         for panel in self.panel_dims:
             mid_x = (panel[0] + panel[2]) / 2
@@ -92,7 +95,7 @@ class Stack:
         
         return lines
     
-    def calc_intersection_pt(self, point, h):
+    def _calc_intersection_pt(self, point, h):
         z0 = point[2]
         dz = self.sun_direction_vector[2]
         t = (h-z0)/dz
@@ -124,7 +127,7 @@ class Stack:
         
         return (shadow_x0, shadow_y0, shadow_x1, shadow_y1, z+.001)    
 
-    def calc_all_shadow_dims(self):
+    def _update_shadow_dims(self):
         self.shadow_dims = []
 
         for i in range(len(self.panel_dims) - 1):
@@ -135,14 +138,14 @@ class Stack:
             shadow = False
 
             if self.azimuth > 0:
-                pt_lower = self.calc_intersection_pt(point, lower.z)
+                pt_lower = self._calc_intersection_pt(point, lower.z)
                 shadow = self.calc_shadow(pt_lower, i, lower)
 
                 if shadow:
                     self.shadow_dims.append(shadow)
 
     def create_shadow_surfaces(self):
-        self.calc_all_shadow_dims()
+        self._update_shadow_dims()
         return rect_surfaces(self.shadow_dims, 'gray')
 
     @property
@@ -154,7 +157,7 @@ class Stack:
             area += length * width   
         return area
 
-    def solar_irradiance(self, elevation_angle):
+    def _solar_irradiance(self, elevation_angle):
         '''Calculate solar irradiance.
 
         Args:
@@ -173,9 +176,16 @@ class Stack:
 
     def calc_power(self, efficiency):
         exposed_area = self.total_panel_area - self.total_shadow_area
-        irradiance = self.solar_irradiance(self.azimuth)
+        irradiance = self._solar_irradiance(self.azimuth)
 
         exposed_area *= 0.092903 #m^2
         
         power = exposed_area * efficiency * irradiance
         return power
+    
+    def cost(self, fixed_per_panel):
+        # width is same for all panels
+        sum_panel_lengths = self.total_panel_area / self.panel_width
+        perimeter = 2 * (sum_panel_lengths + self.panel_width)
+
+        return self.total_panel_area * Params.COST_PANEL + perimeter * Params.COST_FRAME + fixed_per_panel*self.num_panels
