@@ -5,6 +5,7 @@ import numpy as np
 from plotting import create_surface, rect_surfaces
 
 class Panel:
+    # TODO: rewrite this and intersection fucntions
     def __init__(self, panel_dims):
         self.x0 = panel_dims[0]
         self.y0 = panel_dims[1]
@@ -13,7 +14,7 @@ class Panel:
         self.z = panel_dims[4]
 
 class Stack:
-    def __init__(self, num_panels, panel_spacing, panel_width):
+    def __init__(self, num_panels, panel_spacing, panel_width, boat_length):
         self.params = Params()
         self.num_panels = num_panels
         self.panel_spacing = panel_spacing
@@ -25,6 +26,8 @@ class Stack:
         self.sun_direction_vector = (0,0,0)
         self.azimuth = 0
         self.heading = 0
+
+        self.boat_length = boat_length
         
         # Create elements
         self.panel_dims = self._calc_all_panel_dims()
@@ -36,14 +39,19 @@ class Stack:
         return front_offset, back_offset
     
     def _calc_all_panel_dims(self):
+        # mast radius is .3
+        # mast center is (0.55*boat_length, panel_width/2) so we need to move panels in x
+        deck_x_offset = self.boat_length*.55  # deal with this input later - don't leave hardcoded
+
+        # offsets based on geometry of sailboat
         front_offset, back_offset = self._calc_offsets()
         base_x0 = self.params.MAST_OFFSET
         base_x1 = self.params.X_MAX
 
         panel_dims = []
         for i in range(self.num_panels):
-            x0 = base_x0 - i * back_offset
-            x1 = base_x1 - i * front_offset
+            x0 = base_x0 - i * back_offset + deck_x_offset
+            x1 = base_x1 - i * front_offset + deck_x_offset
             y0, y1 = 0, self.panel_width
             z = i * self.panel_spacing
 

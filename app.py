@@ -26,20 +26,29 @@ class App:
 
     def _create_stack(self, num_panels, panel_spacing, panel_width):
         """Create a new active solar panel stack and static surfaces (panels, mast, deck)"""
+        
+        
         self.active_stack = Stack(
             num_panels=num_panels,
             panel_spacing=panel_spacing,
-            panel_width=panel_width
+            panel_width=panel_width,
+            boat_length=40
         )
 
         panels = self.active_stack.create_panel_surfaces()
 
-        cylinder = plotting.create_cylinder(
-            panel_width=panel_width,
-            height=40  #TODO: make this an input (mast height or derived from boat length input)
+        deck, mast_x = plotting.create_deck(
+            boat_length=40, 
+            width=panel_width,
         )
 
-        self.static_surfaces = panels + [cylinder]
+        cylinder = plotting.create_cylinder(
+            panel_width=panel_width,
+            x_val=mast_x,
+            height=40
+        )
+
+        self.static_surfaces = panels + [cylinder] + [deck]
 
     def setup_layout(self):
         self.app.layout = html.Div(className='container', children=[
@@ -96,6 +105,11 @@ class App:
 
 
     def new_fig(self, data):
+        L = self.active_stack.boat_length
+        W = self.active_stack.panel_width
+
+        D = L*.1 + L*1.1
+
         fig = go.Figure(data)
 
         fig.update_layout(
@@ -103,9 +117,9 @@ class App:
             plot_bgcolor='#ADD8E6',
             scene=dict(
                 bgcolor='#ADD8E6',
-                xaxis=dict(range=[0, 25]),
-                yaxis=dict(range=[-10, 15]),
-                zaxis=dict(range=[0, 25]),
+                xaxis=dict(range=[-L*.1, L*1.1]),
+                yaxis=dict(range=[-D/2+W/2, D/2+W/2]),
+                zaxis=dict(range=[0, D]),
                 aspectmode='manual',
                 aspectratio=dict(x=1, y=1, z=1),
             ),
