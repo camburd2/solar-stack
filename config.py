@@ -13,13 +13,13 @@ class Opt:
     panel_width = {
         'min': 12, 
         'max': 36, 
-        'step': 4
+        'step': 1
     }
     
     panel_spacing = {
         'min': 8,
         'max': 36,
-        'step': 2
+        'step': 1
     }
     
     NUM_PANELS = {
