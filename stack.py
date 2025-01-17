@@ -14,7 +14,18 @@ class Panel:
         self.z = panel_dims[4]
 
 class Stack:
-    def __init__(self, num_panels, panel_spacing, panel_width, boat_length):
+    def __init__(self, 
+                 num_panels, 
+                 panel_spacing, 
+                 panel_width, 
+                 boat_length,
+                 base_mast_offset,
+                 base_length,
+                 base_height,
+                 eff,
+                 cost_panel,
+                 cost_frame
+        ):
         self.params = Params()
         self.num_panels = num_panels
         self.panel_spacing = panel_spacing
@@ -28,32 +39,46 @@ class Stack:
         self.heading = 0
 
         self.boat_length = boat_length
+        self.mast_height=1.1*boat_length
+
+        self.eff=eff
+        self.cost_panel=cost_panel
+        self.cost_frame=cost_frame
         
         # Create elements
-        self.panel_dims = self._calc_all_panel_dims()
+        self.panel_dims = self._calc_all_panel_dims(
+            base_mast_offset=base_mast_offset,
+            base_length=base_length,
+            base_height=base_height,
+            mast_height=self.mast_height
+        )
         self.panel_midpoints = self._calc_panel_midpoints()
 
-    def _calc_offsets(self):
-        front_offset = (self.panel_spacing * self.params.X_MAX) / self.params.MAST_HEIGHT
-        back_offset = (self.panel_spacing * self.params.MAST_OFFSET) / self.params.MAST_HEIGHT
+    def _calc_offsets(self, mast_offset, mast_to_basex1, mast_height):
+        front_offset = (self.panel_spacing * mast_to_basex1) / mast_height
+        back_offset = (self.panel_spacing * mast_offset) / mast_height
         return front_offset, back_offset
     
-    def _calc_all_panel_dims(self):
+    def _calc_all_panel_dims(self, base_mast_offset, base_length, base_height, mast_height):
         # mast radius is .3
         # mast center is (0.55*boat_length, panel_width/2) so we need to move panels in x
         deck_x_offset = self.boat_length*.55  # deal with this input later - don't leave hardcoded
 
+        base_x0 = base_mast_offset  # base start x
+        base_x1 = base_mast_offset + base_length
+
         # offsets based on geometry of sailboat
-        front_offset, back_offset = self._calc_offsets()
-        base_x0 = self.params.MAST_OFFSET
-        base_x1 = self.params.X_MAX
+        front_offset, back_offset = self._calc_offsets(base_mast_offset, base_x1, mast_height)
+
 
         panel_dims = []
         for i in range(self.num_panels):
             x0 = base_x0 - i * back_offset + deck_x_offset
             x1 = base_x1 - i * front_offset + deck_x_offset
-            y0, y1 = 0, self.panel_width
-            z = i * self.panel_spacing
+            y0 = 0
+            y1 = self.panel_width
+            
+            z = i * self.panel_spacing + base_height
 
             self.total_panel_area += (x1-x0)*self.panel_width
             panel_dims.append((x0, y0, x1, y1, z))
@@ -162,6 +187,7 @@ class Stack:
             width = shadow[3] - shadow[1]
             area += length * width   
         return area
+  
 
     def _solar_irradiance(self, elevation_angle):
         '''Calculate solar irradiance.
@@ -172,26 +198,35 @@ class Stack:
         Returns:
             float: Solar irradiance [W/m^2] 
         '''
-        # solar constant is amount of solar energy that reaches a unit area perpendicular to the sun's rays, measured at a distance of one astronomical unit from the sun
+        if elevation_angle == 0: return 0
 
-        # to account for rays through atmosphere:
-        max_normal_irradiance_ground = 1000 # W/m^2
-        elevation_radians = np.radians(elevation_angle)
-        irradiance = max_normal_irradiance_ground * np.sin(elevation_radians)
+        # solar constant is amount of solar energy that reaches a unit area perpendicular to the sun's rays, measured at a distance of one astronomical unit from the sun
+        solar_constant = 1361  # W/m²  
+        elev_rad = np.radians(elevation_angle)
+        AM= 1 / np.sin(elev_rad)
+        irradiance = solar_constant * np.sin(elev_rad) * 0.7**(AM**0.678)
+
         return irradiance
 
-    def calc_power(self, efficiency):
+    @property
+    def power(self):
         exposed_area = self.total_panel_area - self.total_shadow_area
         irradiance = self._solar_irradiance(self.azimuth)
 
+        print(self.total_panel_area)
+
         exposed_area *= 0.092903 #m^2
         
-        power = exposed_area * efficiency * irradiance
-        return power
+        power = exposed_area * self.eff * irradiance
+        return int(power)
     
-    def cost(self, fixed_per_panel):
+    @property
+    def cost(self):
         # width is same for all panels
         sum_panel_lengths = self.total_panel_area / self.panel_width
         perimeter = 2 * (sum_panel_lengths + self.panel_width)
 
-        return self.total_panel_area * Params.COST_PANEL + perimeter * Params.COST_FRAME + fixed_per_panel*self.num_panels
+        frame_cost = self.cost_frame * perimeter
+        panel_cost = self.cost_panel * self.total_panel_area
+
+        return int(panel_cost + frame_cost)

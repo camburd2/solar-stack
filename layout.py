@@ -29,11 +29,13 @@ index_string = '''
                 overflow: hidden;
             }
             .side-panel {
-                width: 250px;
+                width: 270px;
                 padding: 20px;
                 background-color: white;
                 box-shadow: 2px 0 5px rgba(0,0,0,0.1);
                 z-index: 1;
+                display: flex;
+                flex-direction: column;
             }
             .plot-column {
                 flex-grow: 1;
@@ -43,35 +45,48 @@ index_string = '''
             .slider-container {
                 padding: 20px;
                 background-color: white;
+                display: flex;
+                gap: 20px;
             }
+            .slider-group {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+            }
+
             .slider {
                 display: flex;
                 align-items: center;
                 margin-bottom: 15px;
             }
             .slider-label {
-                width: 80px;
                 font-weight: bold;
-                margin-right: 15px;
-                white-space: nowrap;
+                margin-bottom: 10px;
+                text-align: center;
             }
             .slider-component {
-                flex-grow: 1;
+                width: 100%;
             }
             .input-group {
+                display: flex;
+                flex-direction: row_reverse;
+                justify-content: flex-end;
+                align-items: center;
+                gap: 10px;
                 margin-bottom: 15px;
             }
             .input-label {
-                display: block;
-                margin-bottom: 5px;
                 font-weight: bold;
+                flex-shrink: 0;
+                margin: 0;
             }
             .input-field {
-                width: 75%;
+                width: 80px;
                 padding: 8px;
                 border: 1px solid #ccc;
                 border-radius: 4px;
             }
+
             .estimated-power {
                 font-size: 16px;
                 font-weight: bold;
@@ -80,6 +95,36 @@ index_string = '''
                 background-color: #f8f9fa;
                 border-radius: 4px;
             }
+
+            .power-estimate-container {
+                margin-top: auto;
+                padding: 15px;
+                background-color: #f5f5f5;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+
+            .power-estimate-title {
+                font-size: 14px;
+                color: #666;
+                margin-bottom: 8px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .power-estimate-value {
+                font-size: 24px;
+                font-weight: bold;
+                color: #2c3e50;
+                margin: 0;
+            }
+
+            .power-estimate-unit {
+                font-size: 14px;
+                color: #666;
+                margin-left: 4px;
+            }
+
         </style>
     </head>
     <body>
