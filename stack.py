@@ -13,7 +13,7 @@ class Panel:
         self.z = panel_dims[4]
 
 class Stack:
-    def __init__(self, num_panels, panel_spacing, panel_width, plot=False):
+    def __init__(self, num_panels, panel_spacing, panel_width):
         self.params = Params()
         self.num_panels = num_panels
         self.panel_spacing = panel_spacing
@@ -28,9 +28,7 @@ class Stack:
         
         # Create elements
         self.panel_dims = self._calc_all_panel_dims()
-        
-        if plot: 
-            self.panel_midpoints = self._calc_panel_midpoints()
+        self.panel_midpoints = self._calc_panel_midpoints()
 
     def _calc_offsets(self):
         front_offset = (self.panel_spacing * self.params.X_MAX) / self.params.MAST_HEIGHT
