@@ -212,9 +212,6 @@ class Stack:
     def power(self):
         exposed_area = self.total_panel_area - self.total_shadow_area
         irradiance = self._solar_irradiance(self.azimuth)
-
-        print(self.total_panel_area)
-
         exposed_area *= 0.092903 #m^2
         
         power = exposed_area * self.eff * irradiance

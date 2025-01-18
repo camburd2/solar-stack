@@ -1,6 +1,6 @@
 import numpy as np
 from stack import Stack
-from config import Opt
+from config import Opt, Params
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -15,10 +15,22 @@ for n_panels in range(Opt.NUM_PANELS['min'], Opt.NUM_PANELS['max']+1):
         for s_panels in range(Opt.panel_spacing['min'], Opt.panel_spacing['max']+1, Opt.panel_spacing['step']):
             s_panels /= 12 # ft to in
 
+            base_length = Params.X_MAX - Params.MAST_OFFSET
+
+            # TODO: better config method/file, eventually inputs to interactive plotly graph too
+
             stack = Stack(num_panels=n_panels,
                           panel_spacing=s_panels,
                           panel_width=w_panels,
-                          boat_length=40)
+                          boat_length=40,
+                          base_mast_offset=Params.MAST_OFFSET,
+                          base_length=base_length,
+                          base_height=1,
+                          eff=.15,
+                          cost_panel=Params.COST_PANEL,
+                          cost_frame=Params.COST_FRAME)
+            
+
                         
             # rotate heading and azimuth and calculate power at each, sum all
             total_power = 0
@@ -32,11 +44,11 @@ for n_panels in range(Opt.NUM_PANELS['min'], Opt.NUM_PANELS['max']+1):
                     stack.update_sun_direction_vector(heading, azimuth)
 
                     # calculate the power based on panel area not in shadow
-                    total_power += stack.calc_power(efficiency=.15)
+                    total_power += stack.power
 
             avg_power = total_power / n
 
-            row = {'num': n_panels, 'width': w_panels, 'spacing': s_panels, 'power': avg_power, 'cost': stack.cost(20)}
+            row = {'num': n_panels, 'width': w_panels, 'spacing': s_panels, 'power': avg_power, 'cost': stack.cost}
             data.append(row)
 
 
