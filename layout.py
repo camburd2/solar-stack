@@ -1,4 +1,108 @@
-index_string = '''
+import dash
+from dash import dcc, html
+
+LAYOUT = html.Div(className='container', children=[
+    html.Div(className='main-content', children=[
+        # Side panel for input
+        html.Div(className='side-panel', children=[
+            html.H3("Panel Configuration", style={'margin-bottom': '50px'}),
+            html.Div(className='input-group', children=[
+                html.Label('Number of Panels', className='input-label'),
+                dcc.Input(id='num-panels-input', type='number', value=6, min=1, className='input-field')
+            ]),
+            html.Div(className='input-group', children=[
+                html.Label('Panel Spacing (ft)', className='input-label'),
+                dcc.Input(id='panel-spacing-input', type='number', value=3, step=0.1, className='input-field')
+            ]),
+            html.Div(className='input-group', children=[
+                html.Label('Panel Width (ft)', className='input-label'),
+                dcc.Input(id='panel-width-input', type='number', value=2, step=0.1, className='input-field')
+            ]),
+            html.Div(className='input-group', children=[
+                html.Label('Boat Length (ft)', className='input-label'),
+                dcc.Input(id='boat-length-input', type='number', value=40, step=1, className='input-field')
+            ]),
+            html.Div(className='input-group', children=[
+                html.Label('Base Mast Offset (ft)', className='input-label'),
+                dcc.Input(id='base-mast-offset-input', type='number', value=4, step=1, className='input-field')
+            ]),
+            html.Div(className='input-group', children=[
+                html.Label('Base Panel Length (ft)', className='input-label'),
+                dcc.Input(id='base-panel-length-input', type='number', value=5, step=1, className='input-field')
+            ]),
+            html.Div(className='input-group', children=[
+                html.Label('Base Panel Height (ft)', className='input-label'),
+                dcc.Input(id='base-panel-height-input', type='number', value=1, step=1, className='input-field')
+            ]),
+            html.Div(className='input-group', children=[
+                html.Label('Cost Panel Frame ($/ft)', className='input-label'),
+                dcc.Input(id='cost-frame-input', type='number', value=5, step=1, className='input-field')
+            ]),
+            html.Div(className='input-group', children=[
+                html.Label('Cost Panel ($/ft^2)', className='input-label'),
+                dcc.Input(id='cost-panel-input', type='number', value=5, step=1, className='input-field')
+            ]),
+            html.Div(className='input-group', children=[
+                html.Label('Panel Efficiency ($/ft^2)', className='input-label'),
+                dcc.Input(id='eff-panel-input', type='number', value=.15, step=.01, className='input-field')
+            ]),
+            html.Div(className='power-estimate-container', children=[
+                html.Div("Power Estimate", className='power-estimate-title'),
+                    html.Div(children=[
+                        html.Span(id='estimated-power', className='power-estimate-value'),
+                        html.Span("W", className='power-estimate-unit')
+                    ])
+            ]),
+            html.Div(className='power-estimate-container', children=[
+                html.Div("Cost Estimate", className='power-estimate-title'),
+                    html.Div(children=[
+                        html.Span('$', className='power-estimate-unit'),
+                        html.Span(id='estimated-cost', className='power-estimate-value')
+                    ])
+            ]),
+        ]),
+
+        # Plot column
+        html.Div(className='plot-column', children=[
+            dcc.Graph(id='sun-shadow-plot', style={'height': '100%', 'width': '100%'})
+        ]),
+    ]),
+
+    # Bottom slider section
+    html.Div(className='slider-container', children=[
+        # First slider group
+        html.Div(className='slider-group', children=[
+            html.Label('Sun Elevation (°)', className='slider-label'),
+            html.Div(className='slider-component', children=[
+                dcc.Slider(
+                    id='elevation-slider',
+                    min=0,
+                    max=90,
+                    value=45,
+                    marks={i: str(i) for i in range(0, 91, 15)},
+                    tooltip={"placement": "bottom", "always_visible": True}
+                )
+            ])
+        ]), 
+        # Second slider group
+        html.Div(className='slider-group', children=[
+            html.Label('Sun Azimuth (°)', className='slider-label'),
+            html.Div(className='slider-component', children=[
+                dcc.Slider(
+                    id='azimuth-slider',
+                    min=0,
+                    max=360,
+                    value=180,
+                    marks={i: str(i) for i in range(0, 361, 30)},
+                    tooltip={"placement": "bottom", "always_visible": True}
+                )
+            ])
+        ])
+    ])
+])
+
+
+INDEX_STRING = '''
 <!DOCTYPE html>
 <html>
     <head>

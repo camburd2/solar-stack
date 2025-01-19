@@ -113,14 +113,15 @@ class Stack:
         line_length = self.panel_spacing
         lines = []
 
-        for mid in self.panel_midpoints:
+        for i, mid in enumerate(self.panel_midpoints):
             line = go.Scatter3d(
                 x=[mid['x'], mid['x'] + dx * line_length],
                 y=[mid['y'], mid['y'] + dy * line_length],
                 z=[mid['z'], mid['z'] + dz * line_length],
                 mode='lines',
                 line=dict(color='yellow', width=3),
-                showlegend=False
+                showlegend=(i==0),
+                name='Sun Direction Vector'
             )
             lines.append(line)
         
@@ -137,7 +138,7 @@ class Stack:
 
         return (new_x, new_y, new_z)
     
-    def calc_shadow(self, intersect_pt, panel_num, lower):
+    def _calc_shadow(self, intersect_pt, panel_num, lower):
         x0, y0, x1, y1, z = self.panel_dims[panel_num]
         len_upper = x1 - x0
         
@@ -170,7 +171,7 @@ class Stack:
 
             if self.azimuth > 0:
                 pt_lower = self._calc_intersection_pt(point, lower.z)
-                shadow = self.calc_shadow(pt_lower, i, lower)
+                shadow = self._calc_shadow(pt_lower, i, lower)
 
                 if shadow:
                     self.shadow_dims.append(shadow)
@@ -188,21 +189,13 @@ class Stack:
             area += length * width   
         return area
   
-
-    def _solar_irradiance(self, elevation_angle):
-        '''Calculate solar irradiance.
-
-        Args:
-            elevation_angle (int): Angle above horizon [degrees]
-        
-        Returns:
-            float: Solar irradiance [W/m^2] 
-        '''
-        if elevation_angle == 0: return 0
+    @property
+    def _solar_irradiance(self):
+        if self.azimuth == 0: return 0
 
         # solar constant is amount of solar energy that reaches a unit area perpendicular to the sun's rays, measured at a distance of one astronomical unit from the sun
         solar_constant = 1361  # W/m²  
-        elev_rad = np.radians(elevation_angle)
+        elev_rad = np.radians(self.azimuth)
         AM= 1 / np.sin(elev_rad)
         irradiance = solar_constant * np.sin(elev_rad) * 0.7**(AM**0.678)
 
@@ -211,7 +204,7 @@ class Stack:
     @property
     def power(self):
         exposed_area = self.total_panel_area - self.total_shadow_area
-        irradiance = self._solar_irradiance(self.azimuth)
+        irradiance = self._solar_irradiance
         exposed_area *= 0.092903 #m^2
         
         power = exposed_area * self.eff * irradiance

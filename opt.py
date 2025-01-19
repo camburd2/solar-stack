@@ -30,7 +30,6 @@ for n_panels in range(Opt.NUM_PANELS['min'], Opt.NUM_PANELS['max']+1):
                           cost_panel=Params.COST_PANEL,
                           cost_frame=Params.COST_FRAME)
             
-
                         
             # rotate heading and azimuth and calculate power at each, sum all
             total_power = 0
@@ -116,7 +115,7 @@ for num in unique_nums:
 fig.update_layout(
     title='Budget vs Maximum Achievable Power For Solar Stack Based on Sailboat Size Contraints and Estimated Panel Costs',
     xaxis_title='Budget',
-    yaxis_title='Maximum Power',
+    yaxis_title='Maximum Average Power',
     hovermode='x unified',
     coloraxis_colorbar_title='x value'
 )
