@@ -10,9 +10,14 @@ class App:
 
     def __init__(self):
         self.active_stack = None
-        self.static_surfaces = None  # panels, deck, mast
+        self.static_surfaces = None  # contains panels, deck and mast
 
-        # initial stack
+        # create initial stack with default config
+        self._create_initial_stack()
+        self._initialize_app()
+
+    def _create_initial_stack(self):
+        """Initialize solar panel stack with default params."""
         self._create_stack(
             num_panels=6,
             panel_spacing=3,
@@ -26,11 +31,12 @@ class App:
             cost_frame=5
         )
 
+    def _initialize_app(self):
+        """Initialize app with layout and callbacks."""
         self.app = dash.Dash(__name__)
         self.app.index_string = layout.INDEX_STRING
         self.app.layout = layout.LAYOUT
-        self.setup_callbacks()
-
+        self.setup_callbacks()                           
 
     def _create_stack(self, 
                       num_panels, 
@@ -44,7 +50,6 @@ class App:
                       cost_panel,
                       cost_frame):
         """Create a new active solar panel stack and static surfaces (panels, mast, deck)"""
-        
         
         self.active_stack = Stack(
             num_panels=num_panels,
@@ -74,11 +79,10 @@ class App:
 
         self.static_surfaces = panels + [cylinder] + [deck]
 
-
     def new_fig(self, data):
+        """Create new Plotly figure with correct camera angles and styles."""
         L = self.active_stack.boat_length
         W = self.active_stack.panel_width
-
         D = L*.1 + L*1.1
 
         fig = go.Figure(data)
@@ -101,15 +105,12 @@ class App:
                 eye=dict(x=1.5, y=1.5, z=1)
             ),
             showlegend=True,
-            legend=dict(
-                y=0.9
-            )
+            legend=dict(y=0.9)
         )        
         return fig
 
-
     def setup_callbacks(self):
-
+        """Set up dash callbacks for interactive updates."""
         @self.app.callback(
             [Output('sun-shadow-plot', 'figure'),
              Output('estimated-power', 'children'),
@@ -119,7 +120,6 @@ class App:
             Input('panel-spacing-input', 'value'),
             Input('panel-width-input', 'value'),
             Input('boat-length-input', 'value'),
-
             Input('base-mast-offset-input', 'value'),
             Input('base-panel-length-input', 'value'),
             Input('base-panel-height-input', 'value'),
@@ -132,26 +132,12 @@ class App:
             Input('cost-frame-input', 'value')
             ]
         )
-        def update_plot(num, 
-                        spacing, 
-                        width, 
-                        boat_len,                     
-                        base_mast_offset,
-                        base_length,
-                        base_height,
+        def update_plot(num, spacing, width, boat_len, 
+                        base_mast_offset, base_length, base_height,
                         heading, azimuth, 
                         eff, cost_panel, cost_frame):
-
-
-            ctx = dash.callback_context
             
-            if any(trigger['prop_id'].split('.')[0] in [
-                    'num-panels-input', 'panel-spacing-input',
-                    'panel-width-input', 'boat-length-input',
-                    'base-mast-offset-input', 'base-panel-length-input', 'base-panel-height-input',
-                    'eff-panel-input', 'cost-panel-input', 'cost-frame-input'
-                ] for trigger in ctx.triggered):
-                self._create_stack(
+            self._create_stack(
                     num_panels=num,
                     panel_spacing=spacing,
                     panel_width=width,
@@ -164,18 +150,22 @@ class App:
                     cost_frame=cost_frame
                 )
             
-
-            self.active_stack.update_sun_direction_vector(azimuth=heading, heading=azimuth) # the names, they are mixed up in new stack
+            # update sun position and a
+                # TODO: switch names everywhere (az is heading, so az-> elevation, heading->az)
+            self.active_stack.update_sun_direction_vector(
+                azimuth=heading, 
+                heading=azimuth
+            )
             sun_lines = self.active_stack.create_sun_lines()
             shadows = self.active_stack.create_shadow_surfaces()
             data = self.static_surfaces + sun_lines + shadows
-
-            estimated_power = self.active_stack.power
-            cost = self.active_stack.cost
             
-            return self.new_fig(data), f"{estimated_power}", f'{cost}'
+            return (
+                self.new_fig(data), 
+                f"{self.active_stack.power}", 
+                f'{self.active_stack.cost}'
+            )
 
-    
     def run(self):
         self.app.run_server(debug=False)
         

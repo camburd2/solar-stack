@@ -43,7 +43,7 @@ LAYOUT = html.Div(className='container', children=[
                 dcc.Input(id='cost-panel-input', type='number', value=5, step=1, className='input-field')
             ]),
             html.Div(className='input-group', children=[
-                html.Label('Panel Efficiency ($/ft^2)', className='input-label'),
+                html.Label('Panel Efficiency', className='input-label'),
                 dcc.Input(id='eff-panel-input', type='number', value=.15, step=.01, className='input-field')
             ]),
             html.Div(className='power-estimate-container', children=[
