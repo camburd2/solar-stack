@@ -43,8 +43,8 @@ class Stack:
         self.shadows = []
 
         self.sun_direction_vector = (0,0,0)
+        self.elevation = 0
         self.azimuth = 0
-        self.heading = 0
 
         self.boat_length= boat_length
         self.mast_height= 1.1 * boat_length
@@ -93,16 +93,16 @@ class Stack:
 
         return panels
     
-    def update_sun_direction_vector(self, heading, azimuth):
-        theta = np.radians(heading)
-        phi = np.radians(azimuth)
+    def update_sun_direction_vector(self, azimuth, elevation):
+        theta = np.radians(azimuth)
+        phi = np.radians(elevation)
         dx = np.cos(phi) * np.sin(theta)
         dy = np.cos(phi) * np.cos(theta)
         dz = np.sin(phi)
 
         self.sun_direction_vector = (dx, dy, dz)
+        self.elevation = elevation
         self.azimuth = azimuth
-        self.heading = heading
 
         self._update_shadows()
 
@@ -161,7 +161,7 @@ class Stack:
             point = (upper.x0, upper.y0, upper.z)
             shadow = False
 
-            if self.azimuth > 0:
+            if self.elevation > 0:
                 pt_lower = self._calc_intersection_pt(point, lower.z)
                 len_upper = upper.x1-upper.x0
                 shadow = self._calc_shadow(pt_lower, len_upper, lower)
@@ -185,11 +185,11 @@ class Stack:
   
     @property
     def _solar_irradiance(self):
-        if self.azimuth == 0: return 0
+        if self.elevation == 0: return 0
 
         # solar constant is amount of solar energy that reaches a unit area perpendicular to the sun's rays, measured at a distance of one astronomical unit from the sun
         solar_constant = 1361  # W/m²  
-        elev_rad = np.radians(self.azimuth)
+        elev_rad = np.radians(self.elevation)
         AM= 1 / np.sin(elev_rad)
         irradiance = solar_constant * np.sin(elev_rad) * 0.7**(AM**0.678)
 

@@ -134,7 +134,7 @@ class App:
         )
         def update_plot(num, spacing, width, boat_len, 
                         base_mast_offset, base_length, base_height,
-                        heading, azimuth, 
+                        elevation, azimuth, 
                         eff, cost_panel, cost_frame):
             
             self._create_stack(
@@ -150,11 +150,9 @@ class App:
                     cost_frame=cost_frame
                 )
             
-            # update sun position and a
-                # TODO: switch names everywhere (az is heading, so az-> elevation, heading->az)
             self.active_stack.update_sun_direction_vector(
-                azimuth=heading, 
-                heading=azimuth
+                elevation=elevation,
+                azimuth=azimuth
             )
             sun_lines = self.active_stack.create_sun_lines()
             shadows = self.active_stack.create_shadow_surfaces()
