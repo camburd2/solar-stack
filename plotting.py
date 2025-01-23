@@ -32,10 +32,10 @@ def rect_surfaces(rects, color):
     """
     surfs = []
     for rect_coords in rects:
-        x = np.array([rect_coords[0], rect_coords[2]])
-        y = np.array([rect_coords[1], rect_coords[3]])
+        x = np.array([rect_coords.x0, rect_coords.x1])
+        y = np.array([rect_coords.y0, rect_coords.y1])
         X, Y = np.meshgrid(x, y)
-        Z = np.ones_like(X) * rect_coords[4]
+        Z = np.ones_like(X) * rect_coords.z
         
         surf = create_surface(X, Y, Z, color)
         surfs.append(surf)

@@ -7,6 +7,7 @@ import plotly.graph_objects as go
 
 data = []
 
+
 for n_panels in range(Opt.NUM_PANELS['min'], Opt.NUM_PANELS['max']+1):
     
     for w_panels in range(Opt.panel_width['min'], Opt.panel_width['max']+1, Opt.panel_width['step']):
