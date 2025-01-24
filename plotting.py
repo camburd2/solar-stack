@@ -3,7 +3,7 @@ import plotly.graph_objs as go
 
 
 def create_surface(x_coords, y_coords, z_coords, colorscale):
-    """Create basic 3D plotly surface with x,y,z coordinates and color inputs."""
+    """Create basic 3D plotly surface with x,y,z coordinates and color inputs"""
     return go.Surface(
         x=x_coords,
         y=y_coords, 
@@ -22,14 +22,7 @@ def create_surface(x_coords, y_coords, z_coords, colorscale):
     )
 
 def rect_surfaces(rects, color):
-    """Create mutliple rectangular plotly surfaces from coordinate sets.
-    
-    Args:
-        rects: list of coordinate tuples (x1, y1, x2, y2, z)
-    
-    Returns:
-        list: list of plotly surface objects
-    """
+    """Create mutliple rectangular plotly surfaces from coordinate sets"""
     surfs = []
     for rect_coords in rects:
         x = np.array([rect_coords.x0, rect_coords.x1])
@@ -42,17 +35,10 @@ def rect_surfaces(rects, color):
     return surfs
 
 def create_cylinder(panel_width, x_val, radius=.3, height=40, resolution=50):
-    """Create a cylinder surface (sailboat mast).
+    """Create a cylinder surface (sailboat mast)
     
-    Args:
-        panel_width: width of panels for centering
-        x_val: x position of cylinder center (based on boat length)
-        radius: radius of cylinder
-        height: height of cylinder
-        resolution: number of points for cylinder mesh
-    
-    Returns: 
-        cylindrical plotly graph surface
+    x_val: x position of cylinder center (based on boat length)
+    returns plotly graph surface
     """
     center = (x_val,  panel_width/2, 0)
     theta = np.linspace(0, 2 * np.pi, resolution)
@@ -68,8 +54,8 @@ def create_cylinder(panel_width, x_val, radius=.3, height=40, resolution=50):
 def calc_deck_param(boat_length):
     """Calculate deck shape parameter based on boat length.
     
-    This formula was derived from parameterizing the two parabolas that
-    form the deck shape curve (left and right sides).
+    formula derived from parameterizing two parabolas that
+    form the deck shape curve (left and right sides)
     """
     return (-boat_length*(1-7**.5))/6
 
@@ -102,12 +88,7 @@ def deck(x, p, w):
 def create_deck(boat_length, width):
     """Create deck surface with realistic sailboat shape.
     
-    Args:
-        boat_length: length of boat
-        width: panel width
-    
-    Returns:
-        tuple: (deck_surface, mast_x_position)
+    Returns a tuple: (deck_surface, mast_x_position)
     """
     param = calc_deck_param(boat_length=boat_length)
     x = np.linspace(0, boat_length, 100)

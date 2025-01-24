@@ -1,8 +1,21 @@
 import plotly.graph_objs as go
 import numpy as np
 import plotting
+from dataclasses import dataclass
 
-
+@dataclass
+class Config:
+    num_panels: int = 6
+    panel_spacing: float = 3
+    panel_width: float = 2
+    boat_length: float = 40
+    base_mast_offset: float = 4
+    base_length: float = 5
+    base_height: float = 1
+    eff: float = 0.15
+    cost_panel: float = 5
+    cost_frame: float = 5
+        
 class Panel:
     def __init__(self, x0, x1, y0, y1, z):
         self.x0 = x0
@@ -11,33 +24,19 @@ class Panel:
         self.y1 = y1
         self.z = z
     
-    @property
     def midpoint(self):
         mid_x = (self.x1 + self.x0)/2
         mid_y = self.y1/2
-        return (mid_x, mid_y, self.z)
+        return mid_x, mid_y, self.z
     
-    @property
     def area(self):
-        return (self.x1-self.x0)*(self.y1-self.y0)
+        return (self.x1 - self.x0) * (self.y1 - self.y0)
         
-
 class Stack:
-    def __init__(self, 
-                 num_panels, 
-                 panel_spacing, 
-                 panel_width, 
-                 boat_length,
-                 base_mast_offset,
-                 base_length,
-                 base_height,
-                 eff,
-                 cost_panel,
-                 cost_frame
-        ):
-        self.num_panels = num_panels
-        self.panel_spacing = panel_spacing
-        self.panel_width = panel_width
+    def __init__(self, config):
+        self.num_panels = config.num_panels
+        self.panel_spacing = config.panel_spacing
+        self.panel_width = config.panel_width
         
         self.total_panel_area = 0
         self.shadows = []
@@ -46,66 +45,134 @@ class Stack:
         self.elevation = 0
         self.azimuth = 0
 
-        self.boat_length= boat_length
-        self.mast_height= 1.1 * boat_length
+        self.boat_length= config.boat_length
+        self.mast_height= 1.1 * config.boat_length
 
-        self.eff=eff
-        self.cost_panel=cost_panel
-        self.cost_frame=cost_frame
-        
-        # Create elements
-        self.panels = self._calc_all_panels(
-            base_mast_offset=base_mast_offset,
-            base_length=base_length,
-            base_height=base_height,
-        )
-        self.panel_midpoints = [panel.midpoint for panel in self.panels]
+        self.eff=config.eff
+        self.cost_panel=config.cost_panel
+        self.cost_frame=config.cost_frame
 
-    def _calc_offsets(self, mast_offset, mast_to_basex1):
-        front_offset = (self.panel_spacing * mast_to_basex1) / self.mast_height
-        back_offset = (self.panel_spacing * mast_offset) / self.mast_height
+        self.base_length = config.base_length
+        self.base_height=config.base_height
+        self.base_mast_offset=config.base_mast_offset
+
+        # Create panels and midpoints for sun vectors
+        self.panels = self._calc_all_panels()
+        self.panel_midpoints = [panel.midpoint() for panel in self.panels]
+
+    def _calc_offsets(self, mast_to_basex1):
+        """calculate front and back offsets based on mast and base panel geometry"""
+        front_offset = self.panel_spacing * mast_to_basex1 / self.mast_height
+        back_offset  = self.panel_spacing * self.base_mast_offset / self.mast_height
         return front_offset, back_offset
     
-    def _calc_all_panels(self, base_mast_offset, base_length, base_height):
-        # mast center is (0.55*boat_length, panel_width/2) so we need to move panels in +x direction
-        # mast radius is .3
-        mast_x = 0.55 * self.boat_length + .3
+    def _calc_all_panels(self):
+        """create all panels based on sailboat geometry and spacing"""
+        mast_x = 0.55 * self.boat_length + .3  # mast center, radius = .3
 
-        # base panel starts at some offset from mast
-        base_x0 = mast_x + base_mast_offset
-        base_x1 = base_x0 + base_length
+        # base panel positions
+        base_x0 = mast_x + self.base_mast_offset
+        base_x1 = base_x0 + self.base_length
 
-        # offsets based on geometry of sailboat
-        front_offset, back_offset = self._calc_offsets(mast_offset= base_mast_offset,
-                                                       mast_to_basex1= base_x1 - mast_x)
+        # front and back offsets based on angles from base panel to mast top
+        front_offset, back_offset = self._calc_offsets(base_x1 - mast_x)
         
         panels = []
         for i in range(self.num_panels):
+            # panel positions based on index (move back toward mast as i increases)
             x0 = base_x0 - i * back_offset
             x1 = base_x1 - i * front_offset
-            y0 = 0
-            y1 = self.panel_width
-            z = i * self.panel_spacing + base_height
+            z = i * self.panel_spacing + self.base_height  # panel height
 
-            panel = Panel(x0, x1, y0, y1, z)
-            self.total_panel_area += panel.area
+            # create panel and accumulate total area
+            panel = Panel(x0, x1, 0, self.panel_width, z)
+            self.total_panel_area += panel.area()
             panels.append(panel)
 
         return panels
+        
+    def _calc_intersection_pt(self, upper_point, lower_z):
+        """calculate where an upper panel intersects with a lower panel using a direction vector"""
+        upper_z = upper_point[2]
+        direction_vec_z = self.sun_direction_vector[2]
+        t = (lower_z - upper_z) / direction_vec_z
+
+        res_x = upper_point[0] + t * self.sun_direction_vector[0]
+        res_y = upper_point[1] + t * self.sun_direction_vector[1]
+
+        return res_x, res_y
     
-    def update_sun_direction_vector(self, azimuth, elevation):
+    def _calc_shadow(self, intersect_pt, len_upper, lower):   
+        """calculate the corner locations for a single shadow
+        
+        args:
+            intersect_pt: pt on lower panel plane where upper panel corner intersects 
+            len_upper: length of upper panel
+            lower: lower panel
+
+        returns:
+            panel object to represent shadow
+        """    
+        sx0, sy0 = intersect_pt
+        sx1 = sx0 + len_upper
+        sy1 = sy0 + self.panel_width
+
+        shadow_x0 = max(sx0, lower.x0)
+        shadow_y0 = max(sy0, lower.y0)
+        shadow_x1 = min(sx1, lower.x1)
+        shadow_y1 = min(sy1, lower.y1)
+
+        if (shadow_x0 >= shadow_x1) or (shadow_y0 >= shadow_y1): 
+            return False
+        
+        return Panel(shadow_x0, shadow_x1, shadow_y0, shadow_y1, lower.z+.001)    
+
+    def _update_shadows(self): 
+        """update the shadow locations based on sun position relative to panel stack"""   
+        if self.elevation <= 0: 
+            return   
+          
+        self.shadows = []
+
+        for i in range(len(self.panels) - 1):
+            lower_panel = self.panels[i]
+            upper_panel = self.panels[i+1]
+            upper_corner_pt = (upper_panel.x0, upper_panel.y0, upper_panel.z)
+            
+            # use sun vector to find intersection point of upper panel corner on lower panel
+            intersection_pt = self._calc_intersection_pt(upper_corner_pt, lower_panel.z)
+            length_upper = upper_panel.x1 - upper_panel.x0
+            shadow = self._calc_shadow(intersection_pt, length_upper, lower_panel)
+
+            if shadow:
+                self.shadows.append(shadow)
+
+    def update_sun_direction_vector(self, elevation, azimuth):
+        """update sun direction vector and update shadows"""
         theta = np.radians(azimuth)
         phi = np.radians(elevation)
+
+        # calc direction components
         dx = np.cos(phi) * np.sin(theta)
         dy = np.cos(phi) * np.cos(theta)
         dz = np.sin(phi)
 
+        # update sun direction vector and sun angles
         self.sun_direction_vector = (dx, dy, dz)
         self.elevation = elevation
         self.azimuth = azimuth
 
+        # recalc shadows with new direction
         self._update_shadows()
 
+    def create_panel_surfaces(self):
+        """return a list of 3d plotly surfaces for the solar panels"""
+        return plotting.rect_surfaces(self.panels, 'greens')
+    
+    def create_shadow_surfaces(self):
+        """update shadows and return shadows as a list of 3d ploty surfaces"""
+        return plotting.rect_surfaces(self.shadows, 'gray')
+    
     def create_sun_lines(self):
         dx, dy, dz = self.sun_direction_vector
         line_length = self.panel_spacing
@@ -125,88 +192,33 @@ class Stack:
         
         return lines
     
-    def _calc_intersection_pt(self, point, h):
-        z0 = point[2]
-        dz = self.sun_direction_vector[2]
-        t = (h-z0)/dz
-
-        new_x = point[0] + t*self.sun_direction_vector[0]
-        new_y = point[1] + t*self.sun_direction_vector[1]
-        new_z = point[2] + t*self.sun_direction_vector[2]
-
-        return (new_x, new_y, new_z)
-    
-    def _calc_shadow(self, intersect_pt, len_upper, lower):       
-        sx0 = intersect_pt[0]
-        sx1 = sx0 + len_upper
-        sy0 = intersect_pt[1]
-        sy1 = intersect_pt[1] + self.panel_width
-
-        shadow_x0 = max(sx0, lower.x0)
-        shadow_y0 = max(sy0, lower.y0)
-        shadow_x1 = min(sx1, lower.x1)
-        shadow_y1 = min(sy1, lower.y1)
-
-        if (shadow_x0 > shadow_x1) or (shadow_y0 > shadow_y1): 
-            return False
-        
-        return Panel(shadow_x0, shadow_x1, shadow_y0, shadow_y1, lower.z+.001)    
-
-    def _update_shadows(self):
-        self.shadows = []
-
-        for i in range(len(self.panels) - 1):
-            lower = self.panels[i]
-            upper = self.panels[i+1]
-            point = (upper.x0, upper.y0, upper.z)
-            shadow = False
-
-            if self.elevation > 0:
-                pt_lower = self._calc_intersection_pt(point, lower.z)
-                len_upper = upper.x1-upper.x0
-                shadow = self._calc_shadow(pt_lower, len_upper, lower)
-
-                if shadow:
-                    self.shadows.append(shadow)
-
-    def create_panel_surfaces(self):
-        return plotting.rect_surfaces(self.panels, 'greens')
-    
-    def create_shadow_surfaces(self):
-        self._update_shadows()
-        return plotting.rect_surfaces(self.shadows, 'gray')
-
     @property
     def total_shadow_area(self):
-        area = 0
-        for shadow in self.shadows:
-            area += shadow.area
-        return area
+        return sum(shadow.area() for shadow in self.shadows)
   
     @property
-    def _solar_irradiance(self):
-        if self.elevation == 0: return 0
+    def solar_irradiance(self):
+        """calculate solar irradiance based on elevation"""
+        if self.elevation == 0: 
+            return 0
 
-        # solar constant is amount of solar energy that reaches a unit area perpendicular to the sun's rays, measured at a distance of one astronomical unit from the sun
         solar_constant = 1361  # W/m²  
         elev_rad = np.radians(self.elevation)
-        AM= 1 / np.sin(elev_rad)
-        irradiance = solar_constant * np.sin(elev_rad) * 0.7**(AM**0.678)
+        air_mass = 1 / np.sin(elev_rad)
+        irradiance = solar_constant * np.sin(elev_rad) * 0.7 ** (air_mass ** 0.678)
 
         return irradiance
 
     @property
     def power(self):
-        exposed_area = self.total_panel_area - self.total_shadow_area
-        irradiance = self._solar_irradiance
-        exposed_area *= 0.092903 #m^2
-        
-        power = exposed_area * self.eff * irradiance
+        """calculate total power of stack with current sun position"""
+        exposed_area = (self.total_panel_area - self.total_shadow_area) * 0.092903  # convert ft^2 to m^2        
+        power = exposed_area * self.eff * self.solar_irradiance
         return int(power)
     
     @property
     def cost(self):
-        # width is same for all panels
+        """total cost of all panels and frames"""
         sum_panel_lengths = self.total_panel_area / self.panel_width
         perimeter = 2 * (sum_panel_lengths + self.panel_width)
 
