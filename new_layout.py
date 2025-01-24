@@ -6,10 +6,12 @@ LAYOUT = html.Div(className='container', children=[
     dcc.Location(id='url', refresh=False),  # Track the current page URL
     
     # Navigation bar
-    html.Div(className='navigation', children=[
-        html.A('Home', href='/', className='nav-link'),
-        html.A('Analysis', href='/analysis', className='nav-link')
-    ]),
+        html.Div(className='navigation', children=[
+            html.Div(className='nav-container', children=[
+                html.A('Home', href='/', className='nav-link'),
+                html.A('Analysis', href='/analysis', className='nav-link')
+            ])
+        ]),
 
     html.Div(id='home-page', className='container', children=[
         html.Div(className='main-content', children=[
@@ -74,9 +76,36 @@ LAYOUT = html.Div(className='container', children=[
 
             # Plot column
             html.Div(className='plot-column', children=[
+                html.Div(style={
+                    'position': 'relative', 
+                    'height': '100%', 
+                    'width': '100%'
+                }, children=[
+                    html.Button(
+                        "Toggle Heatmap", 
+                        id="plot-toggle-button", 
+                        style={
+                            'position': 'absolute', 
+                            'bottom': '10px', 
+                            'right': '10px', 
+                            'zIndex': '10',
+                            'background-color': '#2c3e50', 
+                            'color': 'white', 
+                            'border': 'none', 
+                            'padding': '8px 15px', 
+                            'borderRadius': '20px', 
+                            'cursor': 'pointer', 
+                            'boxShadow': '0 2px 5px rgba(0,0,0,0.2)', 
+                            'transition': 'background-color 0.3s ease'
+                        },
+                        n_clicks=0
+                    ),
                 dcc.Graph(id='sun-shadow-plot', style={'height': '100%', 'width': '100%'})
+                ])
             ]),
         ]),
+
+        
         # Bottom slider section
         html.Div(className='slider-container', children=[
             # First slider group
@@ -195,6 +224,23 @@ INDEX_STRING = '''
             #react-entry-point {
                 height: 100%;
             }
+            .nav-link {
+                color: #2c3e50;
+                text-decoration: none;
+                padding: 10px 15px;
+                margin: 0 10px;
+                border-radius: 20px;
+                transition: background-color 0.3s ease;
+                font-weight: bold;
+            }
+            .navigation {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 5px 0;
+                background-color: white;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
             .container {
                 display: flex;
                 flex-direction: column;
@@ -229,6 +275,7 @@ INDEX_STRING = '''
                 flex: 1;
                 display: flex;
                 flex-direction: column;
+                min-height: 100px;
             }
 
             .slider {
@@ -300,6 +347,10 @@ INDEX_STRING = '''
                 font-size: 14px;
                 color: #666;
                 margin-left: 4px;
+            }
+
+            .nav-link:hover {
+                background-color: #f0f0f0;
             }
 
         </style>

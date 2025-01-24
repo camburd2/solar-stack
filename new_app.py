@@ -75,7 +75,6 @@ class App:
             return {'display': 'flex'}, {'display': 'none'}
 
 
-
         @self.app.callback(
             [Output('sun-shadow-plot', 'figure'),
              Output('estimated-power', 'children'),
@@ -123,6 +122,34 @@ class App:
                 f"{self.active_stack.power}", 
                 f'{self.active_stack.cost}'
             )
+
+
+        @self.app.callback(
+            Output('analysis-plot', 'figure'),
+            [Input('generate-plot-button', 'n_clicks')],
+            [Input('mast-height', 'value'),
+             Input('mast-base-offset', 'value'),
+             Input('base-length', 'value'),
+             Input('cost-frame', 'value'),
+             Input('cost-panel', 'value'),
+             Input('panel-width-min', 'value'),
+             Input('panel-width-max', 'value'),
+             Input('panel-spacing-min', 'value'),
+             Input('panel-spacing-max', 'value'),
+             Input('panel-num-min', 'value'),
+             Input('panel-num-max', 'value')],
+             prevent_initial_call=True
+        )
+        def generate_analysis_plot(n_clicks, mast_height, mast_base_offset, base_length, 
+                                   cost_frame, cost_panel, panel_width_min, panel_width_max,
+                                   panel_spacing_min, panel_spacing_max, 
+                                   panel_num_min, panel_num_max):
+            # Placeholder plot generation
+            fig = go.Figure()
+            print('here')
+            fig.add_trace(go.Scatter(x=[1, 2, 3], y=[4, 5, 6], mode='lines'))
+            return fig
+
 
     def run(self):
         self.app.run_server(debug=False)
