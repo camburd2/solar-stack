@@ -1,9 +1,8 @@
 import dash
-from dash import dcc, html
 from dash.dependencies import Input, Output
 import plotly.graph_objects as go
 import layout
-from stack import Stack, Config
+from stack import Stack, StackConfig
 import plotting
 
 class App:
@@ -11,7 +10,7 @@ class App:
     def __init__(self):
         self.active_stack = None
         self.static_surfaces = None  # contains panels, deck and mast
-        self._create_stack(Config())  # initial stack with default config
+        self._create_stack(StackConfig())  # initial stack with default config
         self._initialize_app()
 
     def _initialize_app(self):
@@ -86,7 +85,7 @@ class App:
                         cost_panel, cost_frame):
             
             # create new stack
-            new_config = Config(
+            new_config = StackConfig(
                 num_panels=num,
                 panel_spacing=spacing,
                 panel_width=width,

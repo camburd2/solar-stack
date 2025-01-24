@@ -4,7 +4,7 @@ import plotting
 from dataclasses import dataclass
 
 @dataclass
-class Config:
+class StackConfig:
     num_panels: int = 6
     panel_spacing: float = 3
     panel_width: float = 2
@@ -37,27 +37,23 @@ class Stack:
         self.num_panels = config.num_panels
         self.panel_spacing = config.panel_spacing
         self.panel_width = config.panel_width
-        
-        self.total_panel_area = 0
-        self.shadows = []
+        self.boat_length = config.boat_length
+        self.base_mast_offset = config.base_mast_offset
+        self.base_length = config.base_length
+        self.base_height = config.base_height
+        self.eff = config.eff
+        self.cost_panel = config.cost_panel
+        self.cost_frame = config.cost_frame
 
+        self.shadows = []
         self.sun_direction_vector = (0,0,0)
         self.elevation = 0
         self.azimuth = 0
+        self.total_panel_area = 0
+        self.mast_height = 1.1 * config.boat_length
 
-        self.boat_length= config.boat_length
-        self.mast_height= 1.1 * config.boat_length
-
-        self.eff=config.eff
-        self.cost_panel=config.cost_panel
-        self.cost_frame=config.cost_frame
-
-        self.base_length = config.base_length
-        self.base_height=config.base_height
-        self.base_mast_offset=config.base_mast_offset
-
-        # Create panels and midpoints for sun vectors
-        self.panels = self._calc_all_panels()
+        # create panels and midpoints for sun vectors
+        self.panels = self._create_panels()
         self.panel_midpoints = [panel.midpoint() for panel in self.panels]
 
     def _calc_offsets(self, mast_to_basex1):
@@ -66,7 +62,7 @@ class Stack:
         back_offset  = self.panel_spacing * self.base_mast_offset / self.mast_height
         return front_offset, back_offset
     
-    def _calc_all_panels(self):
+    def _create_panels(self):
         """create all panels based on sailboat geometry and spacing"""
         mast_x = 0.55 * self.boat_length + .3  # mast center, radius = .3
 
