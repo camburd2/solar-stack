@@ -80,6 +80,7 @@ class App:
             [Output('sun-shadow-plot', 'figure'),
              Output('estimated-power', 'children'),
              Output('estimated-cost', 'children')],
+            [Input('plot-toggle-button', 'n_clicks')],
             [Input('num-panels-input', 'value'),
             Input('panel-spacing-input', 'value'),
             Input('panel-width-input', 'value'),
@@ -93,9 +94,9 @@ class App:
             Input('cost-panel-input', 'value'),
             Input('cost-frame-input', 'value')]
         )
-        def update_plot(num, spacing, width, boat_len, base_mast_offset, 
-                        base_length, base_height, elevation, azimuth, eff, 
-                        cost_panel, cost_frame):
+        def update_main_plot(n_clicks, num, spacing, width, boat_len, 
+                             base_mast_offset, base_length, base_height, 
+                             elevation, azimuth, eff, cost_panel, cost_frame):
             
             # create new stack
             new_config = StackConfig(
@@ -112,30 +113,75 @@ class App:
             )
             self._create_stack(new_config)
             
-            # update dynamic elements
-            self.active_stack.update_sun_direction_vector(elevation, azimuth)
-            sun_lines = self.active_stack.create_sun_lines()
-            shadows = self.active_stack.create_shadow_surfaces()
-            data = self.static_surfaces + sun_lines + shadows
-            
-            return (
-                self.new_fig(data), 
-                f"{self.active_stack.power}", 
-                f'{self.active_stack.cost}'
-            )
+            if n_clicks % 2 == 0:
+                # update dynamic elements
+                self.active_stack.update_sun_direction_vector(elevation, azimuth)
+                sun_lines = self.active_stack.create_sun_lines()
+                shadows = self.active_stack.create_shadow_surfaces()
+                data = self.static_surfaces + sun_lines + shadows
+                
+                return (
+                    self.new_fig(data), 
+                    f"{self.active_stack.power}", 
+                    f'{self.active_stack.cost}'
+                )
+            else:
+                # heatmap
+                heatmap = plot_analysis.create_heatmap(self.active_stack)
+                return (heatmap, '', '')
 
-
+      
         @self.app.callback(
             Output('analysis-plot', 'figure'),
-            [Input('generate-plot-button', 'n_clicks')],
-            [Input('panel-num-min', 'value')],
-             prevent_initial_call=True
+            [Input('panel-num-min', 'value'),
+            Input('panel-num-max', 'value'),
+            Input('panel-spacing-min', 'value'),
+            Input('panel-spacing-max', 'value'),
+            Input('panel-width-min', 'value'),
+            Input('panel-width-max', 'value'),
+            Input('boat-length-input-2', 'value'),
+            Input('base-mast-offset-input-2', 'value'),
+            Input('base-panel-length-input-2', 'value'),
+            Input('base-panel-height-input-2', 'value'),
+            Input('cost-frame-input-2', 'value'),
+            Input('cost-panel-input-2', 'value'),
+            Input('eff-panel-input-2', 'value')],
+            prevent_initial_call=False
         )
-        def generate_analysis_plot(n_clicks, mast_height):
-            fig = go.Figure()
-            print('here')
-            fig.add_trace(go.Scatter(x=[1, 2, 3], y=[4, 5, 6], mode='lines'))
-            return fig
+        def generate_analysis_plot(num_min, num_max,
+                                   space_min, space_max, 
+                                   width_min, width_max,
+                                   boat_len, base_mast_offset,
+                                   base_panel_len, base_panel_height,
+                                   cost_frame, cost_panel, eff_panel
+                                   ):
+            
+            config = StackConfig(
+                num_panels = None,  # set iteratively to make fig data
+                panel_spacing = None,  # set iteratively to make fig data
+                panel_width = None,  # set iteratively to make fig data
+                boat_length = boat_len,
+                base_mast_offset = base_mast_offset,
+                base_length = base_panel_len,
+                base_height = base_panel_height,
+                eff = eff_panel,
+                cost_panel = cost_panel,
+                cost_frame = cost_frame
+            )
+
+            budget_pow_fig = plot_analysis.create_budget_pow_fig(
+                config = config,
+                num_range = (num_min, num_max),
+                width_range = (width_min, width_max),  # ft
+                spacing_range = (space_min, space_max),  # ft
+                n_step = 1,  
+                w_step = .5,  # ft
+                s_step = .5,  # ft
+                azimuth_range = (90,270),  # front to back (side to side is symmetrical, front to back is not)
+                elevation_range = (15,90),  # start at 15deg for more realistic avg pow
+                degree_step = 5
+            )
+            return budget_pow_fig
 
 
     def run(self):

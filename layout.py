@@ -17,7 +17,7 @@ LAYOUT = html.Div(className='container', children=[
         html.Div(className='main-content', children=[
             # Side panel for input
             html.Div(className='side-panel', children=[
-                html.H3("Panel Configuration", style={'margin-bottom': '50px'}),
+                html.H3("Stack Configuration", style={'margin-bottom': '50px'}),
                 html.Div(className='input-group', children=[
                     html.Label('Number of Panels', className='input-label'),
                     dcc.Input(id='num-panels-input', type='number', value=6, min=1, className='input-field')
@@ -149,27 +149,27 @@ LAYOUT = html.Div(className='container', children=[
             # search ranges
             html.Div(className='input-group', children=[
                 html.Label('panel num min', className='input-label'),
-                dcc.Input(id='panel-num-min', type='number', value=1, step=0.1, className='input-field')
+                dcc.Input(id='panel-num-min', type='number', value=1, step=1, className='input-field')
             ]),
             html.Div(className='input-group', children=[
                 html.Label('panel num max', className='input-label'),
-                dcc.Input(id='panel-num-max', type='number', value=6, step=0.1, className='input-field')
+                dcc.Input(id='panel-num-max', type='number', value=6, step=1, className='input-field')
             ]),
             html.Div(className='input-group', children=[
                 html.Label('panel spacing min', className='input-label'),
-                dcc.Input(id='panel-spacing-min', type='number', value=12, step=0.1, className='input-field')
+                dcc.Input(id='panel-spacing-min', type='number', value=1, step=0.1, className='input-field')
             ]),
             html.Div(className='input-group', children=[
                 html.Label('panel spacing max', className='input-label'),
-                dcc.Input(id='panel-spacing-max', type='number', value=36, step=0.1, className='input-field')
+                dcc.Input(id='panel-spacing-max', type='number', value=5, step=0.1, className='input-field')
             ]),
             html.Div(className='input-group', children=[
                 html.Label('panel width min', className='input-label'),
-                dcc.Input(id='panel-width-min', type='number', value=12, step=0.1, className='input-field')
+                dcc.Input(id='panel-width-min', type='number', value=1, step=0.1, className='input-field')
             ]),
             html.Div(className='input-group', children=[
                 html.Label('panel width max', className='input-label'),
-                dcc.Input(id='panel-width-max', type='number', value=36, step=0.1, className='input-field')
+                dcc.Input(id='panel-width-max', type='number', value=3, step=0.1, className='input-field')
             ]),
 
 
@@ -200,12 +200,8 @@ LAYOUT = html.Div(className='container', children=[
             html.Div(className='input-group', children=[
                 html.Label('Panel Efficiency', className='input-label'),
                 dcc.Input(id='eff-panel-input-2', type='number', value=.15, step=.01, className='input-field')
-            ]),
-
-
-            html.Div(className='input-group', children=[
-                html.Button("Generate Plot", id="generate-plot-button", className="button", n_clicks=0)
             ])
+            
 
         ]),
         html.Div(className='plot-column', children=[

@@ -166,7 +166,7 @@ def create_heatmap(
     ))
     
     fig.update_layout(
-        title='Power Distribution by Azimuth and Elevation',
+        title='Power Distribution by Sun Position For Current Stack Configuration',
         xaxis_title='Azimuth',
         yaxis_title='Elevation'
     )
