@@ -1,8 +1,10 @@
 import numpy as np
+import plotly.graph_objs as go
 from stack import Stack, StackConfig
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+
 
 def calc_power(stack, azimuth_range, elevation_range, degree_step, avg=True):
         """calculate average power over range or creates dataset for power values over range"""
@@ -19,7 +21,6 @@ def calc_power(stack, azimuth_range, elevation_range, degree_step, avg=True):
             return sum(r['power'] for r in results) / len(results)
         else:
             return pd.DataFrame(results)
-
 
 def max_power_budget(df):
      
@@ -50,7 +51,6 @@ def max_power_budget(df):
                     'actual_cost': best_row['cost']
                 })
     return pd.DataFrame(results)
-
 
 def pow_budget_fig(df):
     unique_nums = sorted(df['num'].unique())
@@ -116,7 +116,6 @@ def pow_budget_fig(df):
 
     return fig
 
-
 def create_budget_pow_fig(
         config: StackConfig,
         num_range,
@@ -149,7 +148,6 @@ def create_budget_pow_fig(
     fig = pow_budget_fig(max_power_budget_df)
     return fig
 
-    
 def create_heatmap(
         stack,
         azimuth_range = (90, 270),  # front to back
@@ -174,6 +172,7 @@ def create_heatmap(
     )
     
     return fig
+
 
 if __name__ == "__main__":
     default_config = StackConfig()

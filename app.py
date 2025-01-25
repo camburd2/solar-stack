@@ -1,9 +1,10 @@
 import dash
 from dash.dependencies import Input, Output
 import plotly.graph_objects as go
-import layout
+import layout as layout
 from stack import Stack, StackConfig
-import plotting
+import plot_interactive
+import plot_analysis
 
 class App:
 
@@ -25,8 +26,8 @@ class App:
         self.active_stack = Stack(cfg)
 
         panels = self.active_stack.create_panel_surfaces()
-        deck, mast_x = plotting.create_deck(cfg.boat_length, cfg.panel_width)
-        cylinder = plotting.create_cylinder(cfg.panel_width, mast_x, 
+        deck, mast_x = plot_interactive.create_deck(cfg.boat_length, cfg.panel_width)
+        cylinder = plot_interactive.create_cylinder(cfg.panel_width, mast_x, 
                                             height=self.active_stack.mast_height)
 
         self.static_surfaces = panels + [cylinder] + [deck]
@@ -63,6 +64,18 @@ class App:
 
     def setup_callbacks(self):
         """set up dash callbacks for interactive updates"""
+
+        @self.app.callback(
+            [Output('home-page', 'style'),
+            Output('analysis-page', 'style')],
+            [Input('url', 'pathname')]
+        )
+        def display_page(pathname):
+            if pathname == '/analysis':
+                return {'display': 'none'}, {'display': 'flex'}
+            return {'display': 'flex'}, {'display': 'none'}
+
+
         @self.app.callback(
             [Output('sun-shadow-plot', 'figure'),
              Output('estimated-power', 'children'),
@@ -110,6 +123,20 @@ class App:
                 f"{self.active_stack.power}", 
                 f'{self.active_stack.cost}'
             )
+
+
+        @self.app.callback(
+            Output('analysis-plot', 'figure'),
+            [Input('generate-plot-button', 'n_clicks')],
+            [Input('panel-num-min', 'value')],
+             prevent_initial_call=True
+        )
+        def generate_analysis_plot(n_clicks, mast_height):
+            fig = go.Figure()
+            print('here')
+            fig.add_trace(go.Scatter(x=[1, 2, 3], y=[4, 5, 6], mode='lines'))
+            return fig
+
 
     def run(self):
         self.app.run_server(debug=False)

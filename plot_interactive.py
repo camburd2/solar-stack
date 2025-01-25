@@ -1,5 +1,7 @@
 import numpy as np
 import plotly.graph_objs as go
+import pandas as pd
+import plotly.graph_objects as go
 
 
 def create_surface(x_coords, y_coords, z_coords, colorscale):
@@ -49,7 +51,6 @@ def create_cylinder(panel_width, x_val, radius=.3, height=40, resolution=50):
     y = center[1] + radius * np.sin(theta)
     
     return create_surface(x, y, z, 'gray')
-
 
 def calc_deck_param(boat_length):
     """Calculate deck shape parameter based on boat length.
@@ -110,9 +111,9 @@ def create_deck(boat_length, width):
     mast_x = boat_length * .55
     return deck_surface, mast_x
 
+
 if __name__ == "__main__":
     deck = create_deck(boat_length=40, width=2)
-    
     fig = go.Figure()
     fig.add_trace(deck)
     fig.show()
