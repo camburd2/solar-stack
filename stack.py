@@ -1,7 +1,7 @@
 import plotly.graph_objs as go
 import numpy as np
-import plotting
 from dataclasses import dataclass
+import plot_interactive
 
 @dataclass
 class StackConfig:
@@ -163,11 +163,11 @@ class Stack:
 
     def create_panel_surfaces(self):
         """return a list of 3d plotly surfaces for the solar panels"""
-        return plotting.rect_surfaces(self.panels, 'greens')
+        return plot_interactive.rect_surfaces(self.panels, 'greens')
     
     def create_shadow_surfaces(self):
         """update shadows and return shadows as a list of 3d ploty surfaces"""
-        return plotting.rect_surfaces(self.shadows, 'gray')
+        return plot_interactive.rect_surfaces(self.shadows, 'gray')
     
     def create_sun_lines(self):
         dx, dy, dz = self.sun_direction_vector
