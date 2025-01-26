@@ -29,11 +29,22 @@ class Panel:
         mid_y = self.y1/2
         return mid_x, mid_y, self.z
     
+    @property
+    def width(self):
+        return self.y1 - self.y0
+    
+    @property
+    def length(self):
+        return (self.x1 - self.x0)
+    
     def area(self):
-        return (self.x1 - self.x0) * (self.y1 - self.y0)
+        return self.length * self.width
+    
+    def __repr__(self):
+        return f"Panel(width={round(self.width, 1)}, length={round(self.length,1)}, height={round(self.z, 1)})"
         
 class Stack:
-    def __init__(self, config):
+    def __init__(self, config, mast_h_boat_l_ratio=1.3):
         self.num_panels = config.num_panels
         self.panel_spacing = config.panel_spacing
         self.panel_width = config.panel_width
@@ -50,7 +61,7 @@ class Stack:
         self.elevation = 0
         self.azimuth = 0
         self.total_panel_area = 0
-        self.mast_height = 1.1 * config.boat_length
+        self.mast_height = mast_h_boat_l_ratio * config.boat_length
 
         # create panels and midpoints for sun vectors
         self.panels = self._create_panels()
@@ -222,3 +233,21 @@ class Stack:
         panel_cost = self.cost_panel * self.total_panel_area
 
         return int(panel_cost + frame_cost)
+    
+
+if __name__ == "__main__":
+    
+    cfg = StackConfig(
+        num_panels= 5,
+        panel_spacing= 3,
+        panel_width= 20/12,
+        boat_length= 455.5/12,
+        base_mast_offset= 41.27/12,
+        base_length=96/12,
+        base_height=8/12
+    )
+
+    stack = Stack(config=cfg, mast_h_boat_l_ratio=1.4)
+
+    for p in stack.panels: 
+        print(p)

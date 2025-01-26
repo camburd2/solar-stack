@@ -1,3 +1,5 @@
+# TODO: fix horizontal lines in pow/budget plot (sometimes sets overlap), maybe just save (x,y,color) and iterate at end
+
 import numpy as np
 import plotly.graph_objs as go
 from stack import Stack, StackConfig
