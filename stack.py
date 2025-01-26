@@ -15,6 +15,8 @@ class StackConfig:
     eff: float = 0.15
     cost_panel: float = 5
     cost_frame: float = 5
+    mast_h_boat_l_ratio: float = 1.3
+
         
 class Panel:
     def __init__(self, x0, x1, y0, y1, z):
@@ -44,7 +46,7 @@ class Panel:
         return f"Panel(width={round(self.width, 1)}, length={round(self.length,1)}, height={round(self.z, 1)})"
         
 class Stack:
-    def __init__(self, config, mast_h_boat_l_ratio=1.3):
+    def __init__(self, config):
         self.num_panels = config.num_panels
         self.panel_spacing = config.panel_spacing
         self.panel_width = config.panel_width
@@ -61,7 +63,7 @@ class Stack:
         self.elevation = 0
         self.azimuth = 0
         self.total_panel_area = 0
-        self.mast_height = mast_h_boat_l_ratio * config.boat_length
+        self.mast_height = config.mast_h_boat_l_ratio * config.boat_length
 
         # create panels and midpoints for sun vectors
         self.panels = self._create_panels()

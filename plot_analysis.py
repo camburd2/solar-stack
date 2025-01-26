@@ -1,5 +1,3 @@
-# TODO: fix horizontal lines in pow/budget plot (sometimes sets overlap), maybe just save (x,y,color) and iterate at end
-
 import numpy as np
 import plotly.graph_objs as go
 from stack import Stack, StackConfig
@@ -24,12 +22,12 @@ def calc_power(stack, azimuth_range, elevation_range, degree_step, avg=True):
         else:
             return pd.DataFrame(results)
 
-def max_power_budget(df):
+def max_power_budget(df, n_budget_samples=100):
      
     # Create array of budgets
     min_budget = df['cost'].min()
     max_budget = df['cost'].max()
-    budgets = np.linspace(min_budget, max_budget, 100)
+    budgets = np.linspace(min_budget, max_budget, n_budget_samples)
     power_amts = set()
 
     # find max power and params for each budget
@@ -82,11 +80,8 @@ def pow_budget_fig(df):
             x=subset['budget'],
             y=subset['max_P'],
             mode='markers',
-            marker=dict(
-                size=15,
-                color=color_map[num],
-            ),
-            name=f"Num: {int(num)}",
+            marker=dict(size=15, color=color_map[num]),
+            name=f"{int(num)}",
             legendgroup='num',
             legendgrouptitle=dict(text="Number of Panels") if num == unique_nums[0] else None,
             showlegend=True,
@@ -94,21 +89,17 @@ def pow_budget_fig(df):
             hoverinfo='text'
         ))
         
-        # Add horizontal lines to next points
-        for i in range(len(subset)):
-            if i < len(subset) - 1:
-                fig.add_trace(go.Scatter(
-                    x=[subset['budget'].iloc[i], subset['budget'].iloc[i+1]],
-                    y=[subset['max_P'].iloc[i], subset['max_P'].iloc[i]],
-                    mode='lines',
-                    line=dict(color=color_map[num]),
-                    showlegend=False,
-                ))
+    # Add horizontal lines to next points
+    for i in range(len(df)-1):
+        curr, next = df.iloc[i], df.iloc[i+1]
+        fig.add_trace(go.Scatter(
+            x=[curr['budget'], next['budget']],
+            y=[curr['max_P'], curr['max_P']],
+            mode='lines',
+            line=dict(color=color_map[curr['num']]),
+            showlegend=False
+        ))
 
-        last_point = {'x': subset['budget'].iloc[-1], 
-                      'y': subset['max_P'].iloc[-1]}
-
-    # Update layout
     fig.update_layout(
         title='Budget vs Maximum Achievable Power For Solar Stack',
         xaxis_title='Budget',
