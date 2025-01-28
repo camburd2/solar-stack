@@ -1,25 +1,29 @@
 # Solar Stack for Sailboats
 
-Interactive visualization and analysis for a solar panel array above the foredeck of a sailboat. 
+Interactive visualization and analysis of a solar panel array concept for sailboats. 
+
 
 ![Solar Stack concept illustration](./imgs/stack_sailboat_zoom.png)
-*Solar panel array deployed on a sailboat.*
+*Solar panel array deployed on a sailboat*
 
-## Key Features
-- Interactive 3D visualization of solar panel configurations
-- Dynamic shadows with sliders for changing sun position (azimuth and elevation)
-- Power generation estimates based on panel specifications and sun position
-- Cost estimates and budget optimization plot
-- Various inputs for boat geometry and stack size/location on boat
 
-## Examples
+## Features
+- 3D visualization of solar panel configurations
+- Dynamic shadows with adjustable sun position
+- Power generation and cost estimatations
+- Analysis of power across sun positions and power vs. budget plot to find optimal configurations
+
+### 3D Interactive Model 
 ![Interactive visualization](./imgs/3d_plot.png)
-*Interactive 3D viewer*
+*Interactive 3D visualization tool for analyzing stack configurations.*
+- *Input boat geometry and panel specifications*
+- *Adjustable sun position with sliders*
+- *Shadows and power estimates based on sun direction (yellow vector)*
 
-
+### Power vs. Sun Position
 ![Heatmap](./imgs/heatmap.png)
-*Heatmap for power based on relative sun position*
+*Heatmap showing power generation across different relative sun positions.*
 
-
-![Budget vs Power](./imgs/buget_vs_pow.png)
-*Budget vs power graph to find optimal stack configuration\(each point represents a unique stack configuration: spacing and width)*
+### Optimal Configuration Analysis
+![Budget vs. Power](./imgs/budget_vs_pow.png)
+*Analysis of maximum average power achievable at different budgets to find an optimal configuration. Each point represents a unique stack configuration with different panel spacing and width.*
