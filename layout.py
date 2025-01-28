@@ -1,5 +1,3 @@
-#TODO: improve layout for inputs on second page (ranges)
-
 import dash
 from dash import dcc, html
 
@@ -146,66 +144,129 @@ LAYOUT = html.Div(className='container', children=[
     # Analysis Page Layout
     html.Div(id='analysis-page', className='main-content', children=[
         html.Div(className='side-panel', children=[
-            html.H3("Analysis Inputs", style={'margin-bottom': '50px'}),
-
-            # search ranges
-            html.Div(className='input-group', children=[
-                html.Label('panel num min', className='input-label'),
-                dcc.Input(id='panel-num-min', type='number', value=1, step=1, className='input-field')
-            ]),
-            html.Div(className='input-group', children=[
-                html.Label('panel num max', className='input-label'),
-                dcc.Input(id='panel-num-max', type='number', value=6, step=1, className='input-field')
-            ]),
-            html.Div(className='input-group', children=[
-                html.Label('panel spacing min', className='input-label'),
-                dcc.Input(id='panel-spacing-min', type='number', value=1, step=0.1, className='input-field')
-            ]),
-            html.Div(className='input-group', children=[
-                html.Label('panel spacing max', className='input-label'),
-                dcc.Input(id='panel-spacing-max', type='number', value=5, step=0.1, className='input-field')
-            ]),
-            html.Div(className='input-group', children=[
-                html.Label('panel width min', className='input-label'),
-                dcc.Input(id='panel-width-min', type='number', value=1, step=0.1, className='input-field')
-            ]),
-            html.Div(className='input-group', children=[
-                html.Label('panel width max', className='input-label'),
-                dcc.Input(id='panel-width-max', type='number', value=3, step=0.1, className='input-field')
-            ]),
-
-
-            html.Div(className='input-group', children=[
-                html.Label('Boat Length (ft)', className='input-label'),
-                dcc.Input(id='boat-length-input-2', type='number', value=40, step=1, className='input-field')
-            ]),
-            html.Div(className='input-group', children=[
-                html.Label('Base Mast Offset (ft)', className='input-label'),
-                dcc.Input(id='base-mast-offset-input-2', type='number', value=4, step=1, className='input-field')
-            ]),
-            html.Div(className='input-group', children=[
-                html.Label('Base Panel Length (ft)', className='input-label'),
-                dcc.Input(id='base-panel-length-input-2', type='number', value=5, step=1, className='input-field')
-            ]),
-            html.Div(className='input-group', children=[
-                html.Label('Base Panel Height (ft)', className='input-label'),
-                dcc.Input(id='base-panel-height-input-2', type='number', value=1, step=1, className='input-field')
-            ]),
-            html.Div(className='input-group', children=[
-                html.Label('Cost Panel Frame ($/ft)', className='input-label'),
-                dcc.Input(id='cost-frame-input-2', type='number', value=5, step=1, className='input-field')
-            ]),
-            html.Div(className='input-group', children=[
-                html.Label('Cost Panel ($/ft^2)', className='input-label'),
-                dcc.Input(id='cost-panel-input-2', type='number', value=5, step=1, className='input-field')
-            ]),
-            html.Div(className='input-group', children=[
-                html.Label('Panel Efficiency', className='input-label'),
-                dcc.Input(id='eff-panel-input-2', type='number', value=.15, step=.01, className='input-field')
-            ])
+            html.H3("Analysis Inputs", style={'margin-bottom': '30px'}),
             
-
+            # Search Ranges Section
+            html.Div(className='search-ranges-section', children=[
+                html.H4("Search Ranges", style={
+                    'font-size': '14px',
+                    'font-weight': '600',
+                    'color': '#4a5568',
+                    'margin-bottom': '15px'
+                }),
+                
+                # Panel Number Range
+                html.Div(className='range-input-group', children=[
+                    html.Label('Number of Panels', style={'font-weight': 'bold', 'margin-bottom': '8px'}),
+                    html.Div(style={'display': 'flex', 'gap': '10px'}, children=[
+                        html.Div(style={'flex': '1'}, children=[
+                            html.Div('Min', style={'font-size': '12px', 'color': '#666', 'margin-bottom': '4px'}),
+                            dcc.Input(
+                                id='panel-num-min',
+                                type='number',
+                                value=1,
+                                step=1,
+                                className='input-field'
+                            )
+                        ]),
+                        html.Div(style={'flex': '1'}, children=[
+                            html.Div('Max', style={'font-size': '12px', 'color': '#666', 'margin-bottom': '4px'}),
+                            dcc.Input(
+                                id='panel-num-max',
+                                type='number',
+                                value=6,
+                                step=1,
+                                className='input-field'
+                            )
+                        ])
+                    ])
+                ], style={'margin-bottom': '20px'}),
+                
+                # Panel Spacing Range
+                html.Div(className='range-input-group', children=[
+                    html.Label('Panel Spacing (ft)', style={'font-weight': 'bold', 'margin-bottom': '8px'}),
+                    html.Div(style={'display': 'flex', 'gap': '10px'}, children=[
+                        html.Div(style={'flex': '1'}, children=[
+                            html.Div('Min', style={'font-size': '12px', 'color': '#666', 'margin-bottom': '4px'}),
+                            dcc.Input(
+                                id='panel-spacing-min',
+                                type='number',
+                                value=1,
+                                step=0.1,
+                                className='input-field'
+                            )
+                        ]),
+                        html.Div(style={'flex': '1'}, children=[
+                            html.Div('Max', style={'font-size': '12px', 'color': '#666', 'margin-bottom': '4px'}),
+                            dcc.Input(
+                                id='panel-spacing-max',
+                                type='number',
+                                value=5,
+                                step=0.1,
+                                className='input-field'
+                            )
+                        ])
+                    ])
+                ], style={'margin-bottom': '20px'}),
+                
+                # Panel Width Range
+                html.Div(className='range-input-group', children=[
+                    html.Label('Panel Width (ft)', style={'font-weight': 'bold', 'margin-bottom': '8px'}),
+                    html.Div(style={'display': 'flex', 'gap': '10px'}, children=[
+                        html.Div(style={'flex': '1'}, children=[
+                            html.Div('Min', style={'font-size': '12px', 'color': '#666', 'margin-bottom': '4px'}),
+                            dcc.Input(
+                                id='panel-width-min',
+                                type='number',
+                                value=1,
+                                step=0.1,
+                                className='input-field'
+                            )
+                        ]),
+                        html.Div(style={'flex': '1'}, children=[
+                            html.Div('Max', style={'font-size': '12px', 'color': '#666', 'margin-bottom': '4px'}),
+                            dcc.Input(
+                                id='panel-width-max',
+                                type='number',
+                                value=3,
+                                step=0.1,
+                                className='input-field'
+                            )
+                        ])
+                    ])
+                ], style={'margin-bottom': '30px'})
+            ]),
+            
+            # Fixed Parameters Section
+            html.Div(className='fixed-params-section', children=[
+                html.H4("Fixed Parameters", style={
+                    'font-size': '14px',
+                    'font-weight': '600',
+                    'color': '#4a5568',
+                    'margin-bottom': '15px'
+                }),
+                # Fixed parameter inputs
+                *[html.Div(className='input-group', children=[
+                    html.Label(label, className='input-label'),
+                    dcc.Input(
+                        id=id_,
+                        type='number',
+                        value=value,
+                        step=step,
+                        className='input-field'
+                    )
+                ]) for label, id_, value, step in [
+                    ('Boat Length (ft)', 'boat-length-input-2', 40, 1),
+                    ('Base Mast Offset (ft)', 'base-mast-offset-input-2', 4, 1),
+                    ('Base Panel Length (ft)', 'base-panel-length-input-2', 5, 1),
+                    ('Base Panel Height (ft)', 'base-panel-height-input-2', 1, 1),
+                    ('Cost Panel Frame ($/ft)', 'cost-frame-input-2', 5, 1),
+                    ('Cost Panel ($/ft²)', 'cost-panel-input-2', 5, 1),
+                    ('Panel Efficiency', 'eff-panel-input-2', 0.15, 0.01)
+                ]]
+            ])
         ]),
+
         html.Div(className='plot-column', children=[
             dcc.Graph(id='analysis-plot', style={'height': '100%', 'width': '100%'})
         ])
