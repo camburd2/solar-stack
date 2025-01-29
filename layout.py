@@ -164,7 +164,7 @@ LAYOUT = html.Div(className='container', children=[
                             dcc.Input(
                                 id='panel-num-min',
                                 type='number',
-                                value=1,
+                                value=3,
                                 step=1,
                                 className='input-field'
                             )
@@ -174,7 +174,7 @@ LAYOUT = html.Div(className='container', children=[
                             dcc.Input(
                                 id='panel-num-max',
                                 type='number',
-                                value=6,
+                                value=7,
                                 step=1,
                                 className='input-field'
                             )
@@ -191,7 +191,7 @@ LAYOUT = html.Div(className='container', children=[
                             dcc.Input(
                                 id='panel-spacing-min',
                                 type='number',
-                                value=1,
+                                value=2,
                                 step=0.5,
                                 className='input-field'
                             )
@@ -228,7 +228,7 @@ LAYOUT = html.Div(className='container', children=[
                             dcc.Input(
                                 id='panel-width-max',
                                 type='number',
-                                value=3,
+                                value=2.5,
                                 step=0.5,
                                 className='input-field'
                             )
