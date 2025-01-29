@@ -187,7 +187,9 @@ class App:
     def run(self):
         self.app.run_server(debug=False)
         
-        
+
+solar_app = App()
+server = solar_app.app.server
+
 if __name__ == '__main__':
-    solar_app = App()
     solar_app.run()
