@@ -22,7 +22,7 @@ def calc_power(stack, azimuth_range, elevation_range, degree_step, avg=True):
         else:
             return pd.DataFrame(results)
 
-def max_power_budget(df, n_budget_samples=100):
+def max_power_budget(df, n_budget_samples=50):
      
     # Create array of budgets
     min_budget = df['cost'].min()
@@ -47,8 +47,7 @@ def max_power_budget(df, n_budget_samples=100):
                     'max_P': power_val,
                     'num': best_row['num'],
                     'width': best_row['width'],
-                    'spacing': best_row['spacing'],
-                    'actual_cost': best_row['cost']
+                    'spacing': best_row['spacing']
                 })
     return pd.DataFrame(results)
 
@@ -56,19 +55,9 @@ def pow_budget_fig(df):
     unique_nums = sorted(df['num'].unique())
     color_map = {num: color for num, color in zip(unique_nums, px.colors.qualitative.Set2)}
     fig = go.Figure()
-    last_point = None
 
     for num in unique_nums:
         subset = df[df['num'] == num]
-
-        if last_point:
-            fig.add_trace(go.Scatter(
-                x=[last_point['x'], subset['budget'].iloc[0]],
-                y=[last_point['y'], last_point['y']],
-                mode='lines',
-                line=dict(color=color_map[num-1]),
-                showlegend=False,
-            ))
 
         hover_texts = [
             f"Num: {row['num']}<br>Spacing: {row['spacing']:.2f}<br>Width: {row['width']:.2f}<br>Cost: {row['budget']:.2f}<br>Power: {row['max_P']:.2f}"

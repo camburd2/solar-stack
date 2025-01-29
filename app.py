@@ -179,7 +179,7 @@ class App:
                 s_step = .5,  # ft
                 azimuth_range = (90,270),  # front to back (side to side is symmetrical, front to back is not)
                 elevation_range = (15,90),  # start at 15deg for more realistic avg pow
-                degree_step = 5
+                degree_step = 10
             )
             return budget_pow_fig
 

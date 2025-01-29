@@ -24,11 +24,11 @@ LAYOUT = html.Div(className='container', children=[
                 ]),
                 html.Div(className='input-group', children=[
                     html.Label('Panel Spacing (ft)', className='input-label'),
-                    dcc.Input(id='panel-spacing-input', type='number', value=3, step=0.1, className='input-field')
+                    dcc.Input(id='panel-spacing-input', type='number', value=3, step=0.5, className='input-field')
                 ]),
                 html.Div(className='input-group', children=[
                     html.Label('Panel Width (ft)', className='input-label'),
-                    dcc.Input(id='panel-width-input', type='number', value=2, step=0.1, className='input-field')
+                    dcc.Input(id='panel-width-input', type='number', value=2, step=0.5, className='input-field')
                 ]),
                 html.Div(className='input-group', children=[
                     html.Label('Boat Length (ft)', className='input-label'),
@@ -192,7 +192,7 @@ LAYOUT = html.Div(className='container', children=[
                                 id='panel-spacing-min',
                                 type='number',
                                 value=1,
-                                step=0.1,
+                                step=0.5,
                                 className='input-field'
                             )
                         ]),
@@ -202,7 +202,7 @@ LAYOUT = html.Div(className='container', children=[
                                 id='panel-spacing-max',
                                 type='number',
                                 value=5,
-                                step=0.1,
+                                step=0.5,
                                 className='input-field'
                             )
                         ])
@@ -219,7 +219,7 @@ LAYOUT = html.Div(className='container', children=[
                                 id='panel-width-min',
                                 type='number',
                                 value=1,
-                                step=0.1,
+                                step=0.5,
                                 className='input-field'
                             )
                         ]),
@@ -229,7 +229,7 @@ LAYOUT = html.Div(className='container', children=[
                                 id='panel-width-max',
                                 type='number',
                                 value=3,
-                                step=0.1,
+                                step=0.5,
                                 className='input-field'
                             )
                         ])
