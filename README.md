@@ -29,4 +29,4 @@ Interactive visualization and analysis of a solar panel array concept for sailbo
 
 
 ---
-*Solar Stack technology is patent pending (US Patent Application No. #19/009,990)*
+*This solar panel arrangement is patent pending (US Patent Application No. #19/009,990)*
