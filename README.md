@@ -2,7 +2,6 @@
 
 Interactive visualization and analysis of a solar panel array concept for sailboats. 
 
-
 ![Solar Stack concept illustration](./imgs/stack_sailboat_zoom.png)
 *Solar panel array deployed on a sailboat*
 
@@ -27,3 +26,7 @@ Interactive visualization and analysis of a solar panel array concept for sailbo
 ### Optimal Configuration Analysis
 ![Budget vs. Power](./imgs/budget_vs_pow.png)
 *Analysis of maximum average power achievable at different budgets to find an optimal configuration. Each point represents a unique stack configuration with different panel spacing and width.*
+
+
+---
+*Solar Stack technology is patent pending (US Patent Application No. #19/009,990)*
